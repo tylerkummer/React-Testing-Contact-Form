@@ -1,13 +1,13 @@
 import React from 'react';
-import { render, fireEvent, getByTestId } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import ContactForm from "./ContactForm";
 
 test("renders correctly", () => {
     render(<ContactForm />);
 });
 
-test("contact form add new details to the contact", () => {
-    const { getByLabelText, findByTestId } = render(<ContactForm />);
+test("contact form add new details to the contact", async() => {
+    const { getByLabelText, getByTestId, findByText } = render(<ContactForm />);
 
     const firstInput = getByLabelText(/First Name*/i);
     const lastInput = getByLabelText(/Last Name*/i);
@@ -19,7 +19,23 @@ test("contact form add new details to the contact", () => {
     fireEvent.change(emailInput, {target: { name: 'email', value: 'tyler@tyler.com'}});
     fireEvent.change(messageInput, {target: { name: 'message', value: 'hey'}});
 
-    // const submitButton = findByTestId("submit");
+    const submitButton = getByTestId("submit");
+    fireEvent.click(submitButton);
 
-    // fireEvent.click(submitButton);
+    await findByText(/Ty/i);
+    await findByText(/Kummer/i);
+    await findByText(/tyler@tyler.com/i);
+    await findByText(/hey/i);
+});
+
+test("shows maxLength error message", async() => {
+    const { getByLabelText, getByTestId, findByText } = render(<ContactForm />);
+
+    const max = getByLabelText(/First Name*/i);
+    fireEvent.change(max, {target: {name: 'firstName', value: 'Tyler'}});
+
+    const submitButton = getByTestId("submit");
+    fireEvent.click(submitButton);
+    
+    await findByText(/maxLength/);
 });
